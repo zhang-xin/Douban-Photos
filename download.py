@@ -58,7 +58,8 @@ def find_photos(user_id, album=None, slient=False):
         return
 
     soup = BeautifulSoup(r.text, 'html.parser')
-    album_found = False
+
+    albums = []
     for link in soup.find_all('div', class_='pl2'):
         if album is None and not slient:
             comfirm = input('find album "%s", download? : ' % link.a.string).lower()
@@ -67,14 +68,15 @@ def find_photos(user_id, album=None, slient=False):
         elif album is not None:
             if album != link.a.string:
                 continue
-            else:
-                album_found = True
 
-        print('download album %s' % link.a.string)
-        land_on(link.a['href'], link.a.string)
-    else:
-        if album is not None and not album_found:
-            print('Error: cannot find album %s for user %s' % (album, user_id), file=sys.stderr)
+        albums.append((link.a['href'], link.a.string))
+
+    if len(albums) == 0:
+        print("Error: album not found", file=sys.stderr)
+
+    for album in albums:
+        print('downloading album %s' % album[1])
+        land_on(album[0], album[1])
 
 
 if __name__ == "__main__":
