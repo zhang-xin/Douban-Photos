@@ -49,7 +49,6 @@ def land_on(album_url, album_name):
 
 
 def find_photos(user_id, album=None, slient=False):
-
     homepage = 'http://www.douban.com/people/' + user_id + '/photos'
 
     r = requests.get(homepage)
@@ -59,17 +58,32 @@ def find_photos(user_id, album=None, slient=False):
 
     soup = BeautifulSoup(r.text, 'html.parser')
 
-    albums = []
-    for link in soup.find_all('div', class_='pl2'):
-        if album is None and not slient:
-            comfirm = input('find album "%s", download? : ' % link.a.string).lower()
-            if comfirm != 'y' and comfirm != 'yes':
-                continue
-        elif album is not None:
-            if album != link.a.string:
-                continue
+    pages = [soup]
+    while True:
+        last_page = pages[-1]
+        link = last_page.find(rel='next')
+        if link is not None:
+            r = requests.get(link['href'])
+            if r.status_code != 200:
+                print('Error: cannot get user''s webpage', file=sys.stderr)
+                return
+            soup = BeautifulSoup(r.text, 'html.parser')
+            pages.append(soup)
+        else:
+            break
 
-        albums.append((link.a['href'], link.a.string))
+    albums = []
+    for page in pages:
+        for link in page.find_all('div', class_='pl2'):
+            if album is None and not slient:
+                comfirm = input('find album "%s", download? : ' % link.a.string).lower()
+                if comfirm != 'y' and comfirm != 'yes':
+                    continue
+            elif album is not None:
+                if album != link.a.string:
+                    continue
+
+            albums.append((link.a['href'], link.a.string))
 
     if len(albums) == 0:
         print("Error: album not found", file=sys.stderr)
