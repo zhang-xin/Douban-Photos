@@ -48,7 +48,7 @@ def land_on(album_url, album_name):
         land_on(link['href'], album_name)
 
 
-def find_photos(user_id, album=None, slient=False):
+def find_photos(user_id, album=None, silent=False):
     homepage = 'http://www.douban.com/people/' + user_id + '/photos'
 
     r = requests.get(homepage)
@@ -75,9 +75,9 @@ def find_photos(user_id, album=None, slient=False):
     albums = []
     for page in pages:
         for link in page.find_all('div', class_='pl2'):
-            if album is None and not slient:
-                comfirm = input('find album "%s", download? : ' % link.a.string).lower()
-                if comfirm != 'y' and comfirm != 'yes':
+            if album is None and not silent:
+                confirm = input('find album "%s", download? : ' % link.a.string).lower()
+                if confirm != 'y' and confirm != 'yes':
                     continue
             elif album is not None:
                 if album != link.a.string:
