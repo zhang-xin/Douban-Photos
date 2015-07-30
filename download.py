@@ -13,11 +13,12 @@ from bs4 import BeautifulSoup
 def save_file(name, content, path):
     if not os.path.exists(path):
         os.mkdir(path)
-    with open(name, 'wb') as f:
-        f.write(content)
-        if os.path.exists(os.path.join(path, name)):
-            os.remove(os.path.join(path, name))
-        shutil.move(name, path)
+    f = open(name, 'wb')
+    f.write(content)
+    f.close()
+    if os.path.exists(os.path.join(path, name)):
+        os.remove(os.path.join(path, name))
+    shutil.move(name, path)
 
 
 def land_on(album_url, album_name):
